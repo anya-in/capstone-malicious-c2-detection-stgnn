@@ -1,0 +1,26 @@
+# --- DATA & UTILS ---
+pandas                   # Tabular data manipulation (for dataset CSVs)
+numpy                    # Numerical operations & matrix math
+pyyaml                   # Configuration file management
+tqdm                     # Progress bars for long training loops
+
+# --- NETWORK ANALYSIS (Pre-processing) ---
+scapy                    # Deep packet inspection (PCAP to CSV)
+pyshark                  # Python wrapper for tshark (optional backup)
+
+# --- DEEP LEARNING CORE (ST-GNN) ---
+torch                    # Main Deep Learning framework
+torch-geometric          # Graph Neural Network structures
+torch-scatter            # Graph pooling operations
+torch-sparse             # Efficient graph matrices
+torch-cluster            # Graph clustering algorithms
+
+# --- SIGNAL PROCESSING & XAI ---
+scipy                    # FFT implementation and signal filtering
+scikit-learn             # Baseline models & evaluation metrics
+captum                   # Integrated Gradients & XAI explainability
+
+# --- VISUALIZATION ---
+matplotlib               # Static performance plots
+seaborn                  # Statistical data visualization
+networkx                 # Complex graph visualization
