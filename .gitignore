@@ -1,14 +1,15 @@
-# Ignore the data directory
-data/raw/
-data/processed/
-
-# Ignore large CSV and JSON files specifically
+# Data files (Exclude large datasets)
+data/
 *.csv
 *.jsonl
 *.pcap
 
-# Ignore Python environment and cache
-__pycache__/
+# Python environment
+venv/
 .venv/
-.env
+__pycache__/
+
+# IDE and logs
 .ipynb_checkpoints/
+.vscode/
+.DS_Store
