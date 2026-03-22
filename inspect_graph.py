@@ -6,6 +6,7 @@ data = torch.load('data/processed/network_graph.pt', weights_only=False)
 print("--- 🔍 Graph Data Inspection ---")
 print(f"Object Type: {type(data)}")
 print("-" * 30)
+
 # 1. Check the Nodes and Features
 print(f"Number of Nodes (Flows): {data.num_nodes}")
 print(f"Number of Features per Node: {data.num_node_features}")
