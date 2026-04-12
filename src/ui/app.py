@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from torch_geometric.data import Data
 
-# --- PROJECT PATH SETUP ---
+# --- 🛠️ PROJECT PATH SETUP ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.abspath(os.path.join(current_dir, '..', '..'))
 models_path = os.path.join(root_path, 'src', 'models')
@@ -15,14 +15,14 @@ if models_path not in sys.path:
 
 from stgnn_core import STGNN_C2_Detector
 
-# --- UI CONFIG ---
+# --- 🎨 UI CONFIG ---
 st.set_page_config(page_title="ST-GNN C2 Analysis", page_icon="🛡️", layout="wide")
 
 @st.cache_resource
 def load_trained_model():
     model_weights = os.path.join(root_path, 'models', 'stgnn_final_balanced.pth')
     if not os.path.exists(model_weights):
-        st.error("⚠️ Model file not found in /models/ folder.")
+        st.error("⚠️ Model file not found. Ensure .pth is in /models/ folder.")
         return None
     model = STGNN_C2_Detector(input_dim=6)
     model.load_state_dict(torch.load(model_weights, weights_only=False))
@@ -31,11 +31,11 @@ def load_trained_model():
 
 model = load_trained_model()
 
-# --- CALIBRATION PARAMETERS ---
+# --- 📊 CALIBRATION PARAMETERS ---
 MY_MEANS = torch.tensor([6.197e-09, 12734.86, 0.0, 46.03, 852.60, 3.383e-08], dtype=torch.float)
 MY_STDS = torch.tensor([1.00, 6276.81, 0.1, 337.83, 653.97, 0.96], dtype=torch.float)
 
-# --- NAVIGATION ---
+# --- 🛰️ NAVIGATION ---
 tab1, tab2 = st.tabs(["Single Traffic Flow", "Batch Log Processing"])
 
 # --- TAB 1: INDIVIDUAL ANALYSIS ---
@@ -61,15 +61,26 @@ with tab1:
             data_obj = Data(x=norm, edge_index=edge_idx)
 
             with torch.no_grad():
-                pred = model(data_obj)
-                prob = torch.exp(pred)[0][1].item()
+                logits = model(data_obj)
+                
+                # --- 🔥 TEMPERATURE FIX ---
+                # Increase this number (e.g., to 3.0 or 5.0) to make the model even "shier" 
+                # and more prone to showing middle-range percentages.
+                temp = 2.0 
+                prob = torch.softmax(logits / temp, dim=1)[0][1].item()
 
-            if prob > 0.10: 
+            # Updated display logic for the 3-tier warning system
+            if prob > 0.50: 
                 st.error(f"### 🚨 MALICIOUS BEACON: {prob*100:.1f}% Risk")
+                st.write("**Verdict:** High confidence C2 detection.")
+            elif prob > 0.15:
+                st.warning(f"### ⚠️ SUSPICIOUS ACTIVITY: {prob*100:.1f}% Risk")
+                st.write("**Verdict:** Anomalous behavior detected. Possible beaconing.")
             else:
                 st.success(f"### ✅ BENIGN TRAFFIC: {prob*100:.1f}% Risk")
+                st.write("**Verdict:** Normal traffic pattern.")
             
-            st.progress(prob)
+            st.progress(min(prob, 1.0))
             st.bar_chart(norm.numpy().flatten())
 
 # --- TAB 2: BATCH PROCESSING ---
@@ -87,11 +98,11 @@ with tab2:
                 d = Data(x=norm_row, edge_index=torch.tensor([[0], [0]]))
                 with torch.no_grad():
                     out = model(d)
-                    p = torch.exp(out)[0][1].item()
-                    labels.append("MALICIOUS" if p > 0.10 else "BENIGN")
+                    p = torch.softmax(out / 2.0, dim=1)[0][1].item()
+                    labels.append("MALICIOUS" if p > 0.50 else ("SUSPICIOUS" if p > 0.15 else "BENIGN"))
             
             batch_df['ST-GNN Prediction'] = labels
             st.dataframe(batch_df)
 
 st.divider()
-st.caption("Capstone Project | Group Submission 2026")
+st.caption("Capstone Project 2026 | Spatio-Temporal GNN Malicious C2 Detection")
