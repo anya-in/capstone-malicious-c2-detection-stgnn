@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from google import genai
 from torch_geometric.data import Data
 
-# --- 🛠️ PROJECT PATH SETUP ---
+# --- PROJECT PATH SETUP ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.abspath(os.path.join(current_dir, '..', '..'))
 models_path = os.path.join(root_path, 'src', 'models')
@@ -18,16 +18,16 @@ if models_path not in sys.path:
 
 from stgnn_core import STGNN_C2_Detector
 
-# --- 🤖 GEMINI API SETUP ---
-# ⚠️ Replace with your actual key
-MY_API_KEY = "AIzaSyA3n7k5zvmwMeXSuUBLYbIlmtk4dr8q3Vk" 
+# --- GEMINI API SETUP ---
+# Replace with your actual key
+MY_API_KEY = "" 
 
 try:
     gemini_client = genai.Client(api_key=MY_API_KEY)
 except Exception as e:
     st.error(f"API Client Initialization Failed: {e}")
 
-# --- 🎨 UI CONFIG & STATE ---
+# ---  UI CONFIG & STATE ---
 st.set_page_config(page_title="ST-GNN C2 Analysis", page_icon="🛡️", layout="wide")
 
 if "analyzed" not in st.session_state:
@@ -52,7 +52,7 @@ MY_MEANS = torch.tensor([6.197e-09, 12734.86, 0.0, 46.03, 852.60, 3.383e-08], dt
 MY_STDS = torch.tensor([1.00, 6276.81, 0.1, 337.83, 653.97, 0.96], dtype=torch.float)
 FEATURE_NAMES = ["Log Freq", "Total Bytes", "PSD Peak", "Duration", "Client Hello", "Entropy"]
 
-# --- 🧪 ANALYST LOGIC ---
+# ---  ANALYST LOGIC ---
 def get_gemini_insight(prob, raw_list):
     psd_val = raw_list[2]
     dur_val = raw_list[3]
@@ -79,9 +79,9 @@ def get_gemini_insight(prob, raw_list):
         )
         return response.text
     except Exception as e:
-        return f"🚨 AI Analyst Error: {str(e)}"
+        return f" AI Analyst Error: {str(e)}"
 
-# --- 🛰️ NAVIGATION ---
+# ---  NAVIGATION ---
 tab1, tab2, tab3, tab4 = st.tabs(["Single Traffic Flow", "Batch Engine", "Feature Taxonomy", "Academic Artifacts"])
 
 with tab1:
@@ -96,7 +96,7 @@ with tab1:
         f5 = st.number_input("Client Hello Size", value=32)
         f6 = st.slider("Payload Entropy", 0.0, 8.0, 7.40)
         
-        if st.button("🔍 Run GNN Analysis"):
+        if st.button(" Run GNN Analysis"):
             st.session_state.raw_list = [f1, f2, f3, f4, f5, f6]
             raw = torch.tensor([st.session_state.raw_list], dtype=torch.float)
             norm = (raw - MY_MEANS) / (MY_STDS + 1e-6)
@@ -117,12 +117,12 @@ with tab1:
 
             # 1. Detection Alert (Updated UI)
             if prob > 80 or raw_vals[2] > 0.85: 
-                st.error(f"### 🚨 MALICIOUS: {prob:.1f}% Risk")
+                st.error(f"###  MALICIOUS: {prob:.1f}% Risk")
                 st.error("❗ **Anomaly Detected: Active Command & Control Signature Identified**")
             elif prob > 20: 
-                st.warning(f"### ⚠️ SUSPICIOUS: {prob:.1f}% Risk")
+                st.warning(f"###  SUSPICIOUS: {prob:.1f}% Risk")
             else: 
-                st.success(f"### ✅ BENIGN: {prob:.1f}% Risk")
+                st.success(f"###  BENIGN: {prob:.1f}% Risk")
 
             # 2. XAI Visualizations
             g1, g2 = st.columns(2)
@@ -156,20 +156,20 @@ with tab1:
 
             # 3. AI Analysis Button
             st.divider()
-            if st.button("🤖 Generate SOC Report"):
+            if st.button(" Generate SOC Report"):
                 with st.spinner("Compiling forensic finding..."):
                     report = get_gemini_insight(prob, raw_vals)
                     st.info(report)
 
 with tab2:
-    st.header("🛡️ ST-GNN Batch Engine")
+    st.header(" ST-GNN Batch Engine")
     uploaded_file = st.file_uploader("Upload CSV", type="csv")
     if uploaded_file:
         df_batch = pd.read_csv(uploaded_file)
         st.dataframe(df_batch, width="stretch")
 
 with tab3:
-    st.header("📊 Feature Catalog & ST-GNN Taxonomy")
+    st.header(" Feature Catalog & ST-GNN Taxonomy")
     feature_data = {
         "Feature Name": FEATURE_NAMES,
         "Category": ["Core (Top 6)"] * 6,
